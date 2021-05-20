@@ -5,6 +5,12 @@ import {Database, SqlJsStatic} from 'sql.js';
 import {HttpClient} from '@angular/common/http';
 import { Dive } from '../model';
 
+const enum DiveStatus {
+  MANUEL = 0,
+  IMPORTED = 1,
+  DELETED = 2
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -13,12 +19,10 @@ export class SqlService {
 private db: Database = null as any;
 
   constructor(private httpClient: HttpClient) { }
-  
-
 
   async readAllDives(): Promise<Dive[]> {
     return await this.read(
-      "select Number, Divedate, Place from Logbook order by Number desc",
+      `select Number, Divedate, Place from Logbook where Status <> ${DiveStatus.DELETED} order by Number desc`,
       column => ({
         number: column[0],
         date: column[1],
