@@ -1,13 +1,14 @@
+
 import { TestBed } from '@angular/core/testing';
 
-import { SqlServiceService } from './sql-service.service';
+import { SqlService } from './sql-service.service';
 
 describe('SqlServiceService', () => {
-  let service: SqlServiceService;
+  let service: SqlService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(SqlServiceService);
+    service = TestBed.inject(SqlService);
   });
 
   it('should be created', () => {

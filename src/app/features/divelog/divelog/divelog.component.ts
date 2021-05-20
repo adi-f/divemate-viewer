@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { SqlService } from '../data/sql-service.service';
+import { Dive } from '../model';
 
 @Component({
   templateUrl: './divelog.component.html',
@@ -9,17 +11,11 @@ export class DivelogComponent implements OnInit {
     'number', 'date', 'location'
   ];
 
-  dives = [
-    {
-      number: 123,
-      date: '2020-05-22',
-      location: 'Tüscherz'
-    }
-  ];
+  dives$?: Promise<Dive[]>;
 
-  constructor() { }
+  constructor(private sqlService: SqlService) { }
 
   ngOnInit(): void {
+    this.dives$ = this.sqlService.readAllDives();
   }
-
 }

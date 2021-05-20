@@ -1,7 +1,7 @@
 <div class="page">
   <h1>Dive Log</h1>
 
-  <table mat-table [dataSource]="dives" class="mat-elevation-z8">
+  <table mat-table [dataSource]="(dives$ | async) || []" class="mat-elevation-z8">
 
       <ng-container matColumnDef="number">
         <th mat-header-cell *matHeaderCellDef>#</th>
