@@ -6,7 +6,7 @@ import {HttpClient} from '@angular/common/http';
 import { Dive } from '../model';
 
 const enum DiveStatus {
-  MANUEL = 0,
+  MANUAL = 0,
   IMPORTED = 1,
   DELETED = 2
 }

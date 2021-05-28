@@ -6,6 +6,11 @@ const routes: Routes = [
     path: 'divelog',
     pathMatch: 'full',
     loadChildren: () => import('./features/divelog/divelog.module').then(module => module.DivelogModule)
+  },
+  {
+    path: 'connect',
+    pathMatch: 'full',
+    loadChildren: () => import('./features/connect/connect.module').then(module => module.ConnectModule)
   }
 ];
 

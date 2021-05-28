@@ -20,10 +20,11 @@
     "@angular/platform-browser": "~12.0.0",
     "@angular/platform-browser-dynamic": "~12.0.0",
     "@angular/router": "~12.0.0",
+    "angular-oauth2-oidc": "^10.0.3",
     "rxjs": "~6.6.0",
+    "sql.js": "^1.5.0",
     "tslib": "^2.1.0",
-    "zone.js": "~0.11.4",
-    "sql.js": "^1.5.0"
+    "zone.js": "~0.11.4"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~12.0.0",
