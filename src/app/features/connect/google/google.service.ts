@@ -57,8 +57,7 @@ export class GoogleService {
   async setup(): Promise<void> {
     this.oauthService.configure(authCodeFlowConfig);
     await this.oauthService.loadDiscoveryDocumentAndTryLogin();
-    const token: string = this.oauthService.getAccessToken();
-    this.loginState$.next(token ? LoginState.LOGGED_IN : LoginState.LOGGED_OUT);
+    this.loginState$.next(this.oauthService.hasValidAccessToken() ? LoginState.LOGGED_IN : LoginState.LOGGED_OUT);
     console.log(this.oauthService.getAccessToken())
   }
 

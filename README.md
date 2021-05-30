@@ -1,27 +1,16 @@
-# DivemateViewer
+# Divemate Viewer
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.0.0.
+## About the App
+This WebApp connects to Doogle Drive and reads your DiveMate dive log and displays your dives (read only).
 
-## Development server
+All the magic happens in your browser, there is no backend service:
+* The DiveMate file (DiveMate/DiveMate.ddb) is load directly by your browser, gets cached in your browser and is processed in your browser.
+* Authentication using OAuth 2.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+This application reads the backed up divelog from the mobile phone app [DiveMate](https://www.divemate.de/). You need to create & upload a backup to Google Drive first (in the DiveMate format). This requires the _"Data Extension Pack"_ from DiveMate.
 
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## Technology
+* This an [Angular](https://angular.io/) + [Angular Material](https://material.angular.io/) application.
+* The DiveMate backup is a [SQLite](https://sqlite.org/) database file processed in the browser by [sql.js](https://github.com/sql-js/sql.js/).
+* To connect to Google Drive OAuth 2 is uesed provided by [angular-oauth2-oidc](https://github.com/manfredsteyer/angular-oauth2-oidc) (_code flow_).
+* The SQLite divelog database file is cached in the browser's IndexedDB.

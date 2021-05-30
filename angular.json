@@ -25,12 +25,11 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/data",
               {
                 "glob": "**/*",
                 "input": "./node_modules/sql.js/dist",
                 "output": "./assets/sql-js"
-              },
+              }
             ],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",

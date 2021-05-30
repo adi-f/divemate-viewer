@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import {Database, SqlJsStatic} from 'sql.js';
 import {HttpClient} from '@angular/common/http';
 import { Dive } from '../model';
+import { CacheService } from 'src/app/shared/cache/cache.service';
 
 const enum DiveStatus {
   MANUAL = 0,
@@ -16,9 +17,10 @@ const enum DiveStatus {
 })
 export class SqlService {
 
-private db: Database = null as any;
+  private sqlJs: SqlJsStatic = null as any
+  private db: Database = null as any;
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private cacheService: CacheService) { }
 
   async readAllDives(): Promise<Dive[]> {
     return await this.read(
@@ -42,13 +44,23 @@ private db: Database = null as any;
     }
   }
 
-  private async load(): Promise<void> {
+  private async checkSqlJs(): Promise<void> {
+    if(!this.sqlJs) {
+      await this.initSqlJs();
+    }
+  }
+
+  private async initSqlJs(): Promise<void> {
     if(!(window as any).initSqlJs) {
       await this.includeSqlJs();
     }
-    const sql: SqlJsStatic = await (window as any).initSqlJs({locateFile: (file: string) => `/assets/sql-js/${file}`});
-    const data: ArrayBuffer = await this.httpClient.get('data/DiveMate.ddb', {responseType: 'arraybuffer'}).toPromise();
-    this.db = new sql.Database(new Uint8Array(data));
+    this.sqlJs = await (window as any).initSqlJs({locateFile: (file: string) => `/assets/sql-js/${file}`});
+  }
+
+  private async load(): Promise<void> {
+    await this.checkSqlJs();
+    const data: ArrayBuffer = await this.cacheService.readDivelog();
+    this.db = new this.sqlJs.Database(new Uint8Array(data));
   }
 
   private includeSqlJs(): Promise<void> {

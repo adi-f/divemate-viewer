@@ -1,3 +1,8 @@
 .page {
     margin: 2em;
 }
+
+.divelogCachedAt {
+    font-size: 14px;
+    padding-left: 3em;
+}

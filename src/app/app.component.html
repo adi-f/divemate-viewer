@@ -1,7 +1,11 @@
 <mat-toolbar color="primary">
   <span>DiveMate Log Viewer</span>
 
+  <button mat-button routerLink='/connect'>Connect</button>
   <button mat-button routerLink='/divelog'>Divelog</button>
+
+
+  <span class="divelogCachedAt" *ngIf="divelogCachedAt$ | async as divelogCachedAt">Divelog from : {{divelogCachedAt | date:'medium'}}</span>
 </mat-toolbar>
 <div class="page">
   <router-outlet></router-outlet>

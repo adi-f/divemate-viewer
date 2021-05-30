@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Observable } from 'rxjs';
+import { ConfigService } from './shared/config/config.service';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +8,10 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'divemate-viewer';
+
+  divelogCachedAt$: Observable<Date|null>;
+  
+  constructor(configService: ConfigService) {
+    this.divelogCachedAt$ = configService.divelogCachedAt$;
+  }
 }

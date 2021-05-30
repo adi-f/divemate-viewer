@@ -1,0 +1,7 @@
+<h1>Connect to Google Drive</h1>
+<div>State: {{loginStatePretty$ | async}}</div>
+<button mat-raised-button color="primary" (click)="login()">sign in / change account</button>
+<br>
+<button mat-raised-button color="primary" (click)="readDb()" [disabled]="(loginState$ | async) !== 'LOGGED_IN'">load DiveMate divelog</button>
+<br>
+<button mat-raised-button color="primary" (click)="clearCachedDb()">clear local cached divelog</button>

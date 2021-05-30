@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 import { SqlService } from '../data/sql-service.service';
 import { Dive } from '../model';
+import { DivelogService } from './divelog.service';
 
 @Component({
   templateUrl: './divelog.component.html',
@@ -11,11 +13,11 @@ export class DivelogComponent implements OnInit {
     'number', 'date', 'location'
   ];
 
-  dives$?: Promise<Dive[]>;
+  dives$?: Observable<Dive[]>;
 
-  constructor(private sqlService: SqlService) { }
+  constructor(private divelogService: DivelogService) { }
 
   ngOnInit(): void {
-    this.dives$ = this.sqlService.readAllDives();
+    this.dives$ = this.divelogService.divelog$;
   }
 }
