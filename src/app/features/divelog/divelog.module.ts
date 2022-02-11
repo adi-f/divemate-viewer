@@ -4,10 +4,12 @@ import { DivelogComponent } from './divelog/divelog.component';
 import { DivelogRoutingModule } from './divelog-routing.module';
 import {MatTableModule} from '@angular/material/table';
 import { HttpClientModule } from '@angular/common/http';
+import { MinutesToTimehPipe } from './divelog/minutesToTime.pipe';
 
 @NgModule({
   declarations: [
-    DivelogComponent
+    DivelogComponent,
+    MinutesToTimehPipe
   ],
   imports: [
     CommonModule,

@@ -87,7 +87,7 @@ export class GoogleService {
   }
 
   private async listFileOf(folderId: string, filter: (file: GDFile) => boolean = () => true): Promise<GDFile[]> {
-    const result: GDFileList = await this.getApiV3(`/files?q='${folderId}' in parents`);
+    const result: GDFileList = await this.getApiV3(`/files?q='${folderId}' in parents`).then(result => result.files.filter(filter));
     return result.files.filter(filter);
   }
 

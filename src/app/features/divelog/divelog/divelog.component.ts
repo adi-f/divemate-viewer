@@ -10,7 +10,7 @@ import { DivelogService } from './divelog.service';
 })
 export class DivelogComponent implements OnInit {
   readonly columns = [
-    'number', 'date', 'location'
+    'number', 'date', 'location', 'duration'
   ];
 
   dives$?: Observable<Dive[]>;

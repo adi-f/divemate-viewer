@@ -24,11 +24,12 @@ export class SqlService {
 
   async readAllDives(): Promise<Dive[]> {
     return await this.read(
-      `select Number, Divedate, Place from Logbook where Status <> ${DiveStatus.DELETED} order by Number desc`,
+      `select Number, Divedate, Place, Divetime from Logbook where Status <> ${DiveStatus.DELETED} order by Number desc`,
       column => ({
         number: column[0],
         date: column[1],
-        location: column[2]
+        location: column[2],
+        durationMinutes: column[3]
       })
     );
   }
