@@ -7,14 +7,14 @@ import { BehaviorSubject, Subject } from 'rxjs';
 // https://www.oauth.com/oauth2-servers/signing-in-with-google/create-an-application/
 // https://www.npmjs.com/package/angular-oauth2-oidc
 // https://github.com/manfredsteyer/angular-oauth2-oidc/blob/master/projects/sample/src/app/auth.google.config.ts
- 
+
   const authCodeFlowConfig: AuthConfig = {
     issuer: 'https://accounts.google.com',
     redirectUri: window.location.origin + '/connect',
-    clientId: unobfuscate('jlmnnninjmmfq(:5fkkhge<4l./j9/l4k0m+(+m-*6e*mp=..+p7//729)+9,;/0*90*p;/1'),
+    clientId: unobfuscate('jlmnnninjmmfq00;j4l1/+68,9/.(99l85=/8f;6,*=/gp=..+p7//729)+9,;/0*90*p;/1'),
     responseType: 'code',
     strictDiscoveryDocumentValidation: false,
-    dummyClientSecret: unobfuscate("ET5Nqn5l?h$Y68(MIkXk&l'6"),
+    dummyClientSecret: unobfuscate('WO[KNFqF:?$gqI)+U7l3(6M6/OH3n6,$<fY'),
     scope: 'openid profile email https://www.googleapis.com/auth/drive.readonly',
     showDebugInformation: true
   };
@@ -32,10 +32,6 @@ import { BehaviorSubject, Subject } from 'rxjs';
   const enum GDMimeType {
     FOLDER = 'application/vnd.google-apps.folder',
     BINARY_FILE = 'application/octet-stream',
-  }
-
-  interface GDFileList {
-    files: GDFile[]
   }
 
   interface GDFile {
@@ -87,8 +83,8 @@ export class GoogleService {
   }
 
   private async listFileOf(folderId: string, filter: (file: GDFile) => boolean = () => true): Promise<GDFile[]> {
-    const result: GDFileList = await this.getApiV3(`/files?q='${folderId}' in parents`).then(result => result.files.filter(filter));
-    return result.files.filter(filter);
+    const result: GDFile[] = await this.getApiV3(`/files?q='${folderId}' in parents`).then(result => result.files.filter(filter));
+    return result.filter(filter);
   }
 
   private async getApiV3(query:string, responseType: 'json' | 'arraybuffer' = 'json'): Promise<any> {
