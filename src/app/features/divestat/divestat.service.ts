@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ConfigService } from 'src/app/shared/config/config.service';
 import { Decompression, Entry, Salinity, SqlService, StatColumns } from 'src/app/shared/data/sql-service.service';
-import { CountStat, DiveSiteStat } from 'src/app/shared/model';
+import { CountStat, DivesByCountry, DiveSiteStat } from 'src/app/shared/model';
 
 @Injectable({
   providedIn: 'root'
@@ -20,8 +20,13 @@ export class DivestatService {
     return this.sqlService.readDiveSitesGroupedByDiveCount();
   }
 
+  readDivesGroupedByCountry(): Promise<DivesByCountry[]> {
+    return this.sqlService.readDivesGroupedByCountry();
+  }
+
   async readAllCountStats(): Promise<CountStat[]> {
     const counts = [
+      {description: 'Total number of dives', read: () => this.readTotalCount()},
       {description: 'Decompression dives', read: () => this.readDecoDiveCount()},
       {description: 'Dives entered by shore', read: () => this.readShoreDiveCount()},
       {description: 'Dives entered by boat', read: () => this.readBoadDiveCount()},
@@ -38,6 +43,10 @@ export class DivestatService {
     }));
   }
   
+  private readTotalCount(): Promise<number> {
+    return this.sqlService.countAllDives();
+  }
+
   private readDecoDiveCount(): Promise<number> {
     return this.sqlService.countBy(StatColumns.DECO, Decompression.DECOMPRESSION);
   }

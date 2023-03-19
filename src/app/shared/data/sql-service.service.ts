@@ -2,7 +2,7 @@
 (window as any).require = () => ({});
 import { Injectable } from '@angular/core';
 import {Database, SqlJsStatic} from 'sql.js';
-import { Dive, DiveSiteStat } from '../model';
+import { Dive, DivesByCountry, DiveSiteStat } from '../model';
 import { CacheService } from 'src/app/shared/cache/cache.service';
 
 const SAFE_SQL_STRING_LITERAL = /^\w*$/;
@@ -67,6 +67,23 @@ export class SqlService {
         count: column[3]
       })
     );
+  }
+
+  async readDivesGroupedByCountry(): Promise<DivesByCountry[]> {
+    return await this.read(
+      `select Country, count(Country) as Count from Logbook where Status <> ${DiveStatus.DELETED} group by Country order by count(Country) desc`,
+      column => ({
+        country: column[0],
+        count: column[1]
+      })
+    );
+  }
+
+  async countAllDives(): Promise<number> {
+    const resultAsList =  await this.read(`select count(*) from Logbook where Status <> ${DiveStatus.DELETED}`,
+      column => column[0]
+    );
+    return resultAsList[0];
   }
 
   async countBy(columnName: string, value: any): Promise<number> {

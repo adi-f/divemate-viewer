@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CountStat, DiveSiteStat } from 'src/app/shared/model';
+import { CountStat, DivesByCountry, DiveSiteStat } from 'src/app/shared/model';
 import { DivestatService } from './divestat.service';
 
 @Component({
@@ -12,6 +12,10 @@ export class DivestatComponent {
     'name', 'country', 'count'
   ];
 
+  readonly columnsDivesByCountry = [
+    'country', 'count'
+  ];
+
   readonly columnsCountStats = [
     'description', 'count'
   ];
@@ -19,6 +23,8 @@ export class DivestatComponent {
   logReady$: Observable<boolean>;
 
   diveSiteStats: Promise<DiveSiteStat[]> = Promise.resolve([]);
+
+  divesByCountry: Promise<DivesByCountry[]> = Promise.resolve([]);
   
   countStats: Promise<CountStat[]> = Promise.resolve([]);
   
@@ -28,6 +34,10 @@ export class DivestatComponent {
 
   calculateDiveSiteStats() {
     this.diveSiteStats = this.divestatService.readDiveSiteStats();
+  }
+
+  calculateDivesByCountry() {
+    this.divesByCountry = this.divestatService.readDivesGroupedByCountry();
   }
 
   calculateCountStats() {

@@ -12,6 +12,11 @@ export interface DiveSiteStat {
     count: number;
 }
 
+export interface DivesByCountry {
+    country: string;
+    count: number;
+}
+
 export interface CountStat {
     description: string;
     count: number;
