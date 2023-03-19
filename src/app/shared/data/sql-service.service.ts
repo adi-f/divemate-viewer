@@ -70,7 +70,7 @@ export class SqlService {
   }
 
   async countBy(columnName: string, value: any): Promise<number> {
-    const resultAsList =  await this.read(`select count(*) from Logbook where  where Status <> ${DiveStatus.DELETED} and ${this.sanitizeColumnName(columnName)} = ${this.sanitizeValue(value)}`,
+    const resultAsList =  await this.read(`select count(*) from Logbook where Status <> ${DiveStatus.DELETED} and ${this.sanitizeColumnName(columnName)} = ${this.sanitizeValue(value)}`,
       column => column[0]
     );
     return resultAsList[0];
