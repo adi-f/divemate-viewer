@@ -2,14 +2,37 @@
 (window as any).require = () => ({});
 import { Injectable } from '@angular/core';
 import {Database, SqlJsStatic} from 'sql.js';
-import {HttpClient} from '@angular/common/http';
-import { Dive } from '../model';
+import { Dive, DiveSiteStat } from '../model';
 import { CacheService } from 'src/app/shared/cache/cache.service';
+
+const SAFE_SQL_STRING_LITERAL = /^\w*$/;
 
 const enum DiveStatus {
   MANUAL = 0,
   IMPORTED = 1,
   DELETED = 2
+}
+
+export const enum StatColumns {
+  DECO = 'Deco',
+  ENTRY = 'Entry',
+  SALINITY = 'Water'
+}
+
+export const enum Decompression {
+  ZERO_TIME = 0,
+  DECOMPRESSION = 1
+}
+
+export const enum Entry {
+  SHORE = 1,
+  BOAT = 2
+}
+
+export const enum Salinity {
+  SALT = 1,
+  FRESH = 2,
+  BRACKISH = 3 // <- unproofed guess
 }
 
 @Injectable({
@@ -32,6 +55,25 @@ export class SqlService {
         durationMinutes: column[3]
       })
     );
+  }
+
+  async readDiveSitesGroupedByDiveCount(): Promise<DiveSiteStat[]> {
+    return await this.read(
+      `select PlaceID, Place, Country, count(PlaceID) as Count from Logbook where Status <> ${DiveStatus.DELETED} group by PlaceID order by count(PlaceID) desc`,
+      column => ({
+        id: column[0],
+        name: column[1],
+        country: column[2],
+        count: column[3]
+      })
+    );
+  }
+
+  async countBy(columnName: string, value: any): Promise<number> {
+    const resultAsList =  await this.read(`select count(*) from Logbook where  where Status <> ${DiveStatus.DELETED} and ${this.sanitizeColumnName(columnName)} = ${this.sanitizeValue(value)}`,
+      column => column[0]
+    );
+    return resultAsList[0];
   }
 
   private async read<T>(sqlQuery: string, mapper: (row: any[]) => T): Promise<T[]> {
@@ -71,5 +113,26 @@ export class SqlService {
     script.setAttribute('src','/assets/sql-js/sql-wasm.js')
     document.head.appendChild(script);
     return scriptLoaded;
+  }
+
+
+  private sanitizeColumnName(name: string): string {
+    if(typeof name === 'string' && SAFE_SQL_STRING_LITERAL.test(name)) {
+      return '"' + name + '"';
+    } else {
+      throw 'String not save for SQL: ' + name;
+    }
+  }
+
+  private sanitizeValue<T = string|number>(value: T): T {
+    if(typeof value === 'number') {
+      return value;
+    } else {
+      const valueAsString = String(value);
+      if(!SAFE_SQL_STRING_LITERAL.test(valueAsString)) {
+        throw 'String not save for SQL: ' + valueAsString;
+      }
+      return "'" + valueAsString + "'"  as unknown as T;
+    }
   }
 }

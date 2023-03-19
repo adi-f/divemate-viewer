@@ -4,3 +4,10 @@ export interface Dive {
     location: string;
     durationMinutes: number;
 }
+
+export interface DiveSiteStat {
+    id: number;
+    name: string;
+    country: string;
+    count: number;
+}

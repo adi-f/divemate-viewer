@@ -3,6 +3,8 @@
 
   <button mat-button routerLink='/connect'>Connect</button>
   <button mat-button routerLink='/divelog'>Divelog</button>
+  <button mat-button routerLink='/divestat'>Dive Statistics</button>
+
 
 
   <span class="divelogCachedAt" *ngIf="divelogCachedAt$ | async as divelogCachedAt">Divelog from : {{divelogCachedAt | date:'medium'}}</span>

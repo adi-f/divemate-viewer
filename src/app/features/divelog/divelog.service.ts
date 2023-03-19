@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { from, Observable, of } from 'rxjs';
 import { shareReplay, switchMap } from 'rxjs/operators';
 import { ConfigService } from 'src/app/shared/config/config.service';
-import { SqlService } from '../data/sql-service.service';
-import { Dive } from '../model';
+import { SqlService } from 'src/app/shared/data/sql-service.service';
+import { Dive } from '../../shared/model';
 
 @Injectable({
   providedIn: 'root'

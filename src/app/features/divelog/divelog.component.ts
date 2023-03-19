@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SqlService } from '../data/sql-service.service';
-import { Dive } from '../model';
+import { Dive } from 'src/app/shared/model';
 import { DivelogService } from './divelog.service';
 
 @Component({
