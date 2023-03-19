@@ -1,7 +1,7 @@
 # Divemate Viewer
 
 ## About the App
-This WebApp connects to Doogle Drive and reads your DiveMate dive log and displays your dives (read only).
+This WebApp connects to Google Drive and reads your DiveMate dive log and displays your dives (read only).
 
 All the magic happens in your browser, there is no backend service:
 * The DiveMate file (DiveMate/DiveMate.ddb) is load directly by your browser, gets cached in your browser and is processed in your browser.
