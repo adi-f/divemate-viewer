@@ -14,3 +14,11 @@ This application reads the backed up divelog from the mobile phone app [DiveMate
 * The DiveMate backup is a [SQLite](https://sqlite.org/) database file processed in the browser by [sql.js](https://github.com/sql-js/sql.js/).
 * To connect to Google Drive OAuth 2 is uesed provided by [angular-oauth2-oidc](https://github.com/manfredsteyer/angular-oauth2-oidc) (_code flow_).
 * The SQLite divelog database file is cached in the browser's IndexedDB.
+
+## Dev Guide
+* run local: `npm run serve`
+* deploy to firebase
+  * 1st, build: `npm run build`
+  * 2dn, deploy: `firebase deploy`
+  * 3rd, verify: go to https://divemate-viewer-314318.web.app
+
