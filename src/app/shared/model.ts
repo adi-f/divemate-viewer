@@ -21,3 +21,9 @@ export interface CountStat {
     description: string;
     count: number;
 }
+
+export interface Buddy {
+    id: number,
+    firstName: string,
+    lastName: string;
+}

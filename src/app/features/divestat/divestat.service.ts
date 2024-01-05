@@ -66,4 +66,79 @@ export class DivestatService {
   private readSaltwaterDiveCount(): Promise<number> {
     return this.sqlService.countBy(StatColumns.SALINITY, Salinity.SALT);
   }
+
+  async readDivesByBuddy() {
+    // buddies from list
+    const rawBuddyIdStat: CountStat[] = await this.sqlService.readDivesByBuddyRawIds();
+    const buddyIdStat: CountStat[] = this.normalizeCompactedStats(rawBuddyIdStat);
+    const buddyIdsOfBuddyIdStat: number[] = this.extractBuddyIdsFromCountStatDescription(buddyIdStat)
+    const buddyNamesById: Map<number, string> = await this.readBuddyNamesById(buddyIdsOfBuddyIdStat);
+    const buddyIdNameResolvedStat = this.replaceIdWithName(buddyIdStat, buddyNamesById);
+
+    // direct entered buddy names
+    const rawBuddyNameStat: CountStat[] = await this.sqlService.readDivesByRawBuddyNames();
+    const buddyNameStat: CountStat[] = this.normalizeCompactedStats(rawBuddyNameStat);
+    
+    return this.merge(buddyIdNameResolvedStat, buddyNameStat);
+  }
+
+  private normalizeCompactedStats(compactedStat: CountStat[]): CountStat[] {
+    const normalizedStats: Map<string, number> = new Map();
+    for(const entry of compactedStat) {
+      const keys = entry.description.split(/,|\n/).map(key => key.trim()).filter(key => !!key);
+      for(const key of keys) {
+        const newCount = (normalizedStats.get(key) || 0) + entry.count;
+        normalizedStats.set(key, newCount);
+      }
+    }
+    const result: CountStat[] = [];
+    for(const [description, count] of normalizedStats.entries()) {
+      result.push({
+        description,
+        count
+      });
+    }
+    return result;
+  }
+
+  private extractBuddyIdsFromCountStatDescription(buddyIdStats: CountStat[]): number[] {
+    const ids = new Set<number>();
+    for(let buddyIdStat of buddyIdStats) {
+      ids.add(parseInt(buddyIdStat.description, 10));
+    }
+    return [...ids];
+  }
+
+  private async readBuddyNamesById(buddyIdsOfBuddyIdStat: number[]): Promise<Map<number, string>> {
+    const buddies = await this.sqlService.readBuddies(buddyIdsOfBuddyIdStat);
+    const buddyNamesById = new Map<number, string>();
+    for(let buddy of buddies) {
+      const buddyName = (buddy.firstName + ' ' + buddy.lastName).trim();
+      buddyNamesById.set(buddy.id, buddyName)
+    }
+    return buddyNamesById;
+  }
+
+  private replaceIdWithName(buddyIdStats: CountStat[], buddyNamesById: Map<number, string>): CountStat[] {
+    return buddyIdStats.map( buddyIdStat => ({
+      description: buddyNamesById.get(parseInt(buddyIdStat.description, 10)) || '<unknown>',
+      count: buddyIdStat.count
+    }));
+  }
+
+  private merge(...statistics: CountStat[][]): CountStat[]  {
+    const resultingMap = new Map<string, number>();
+    for(let stats of statistics) {
+      for(let stat of stats) {
+        resultingMap.set(
+          stat.description,
+          stat.count + (resultingMap.get(stat.description) || 0)
+        )
+      }
+    }
+    return Array.from(resultingMap, ([key, value])=> ({
+      description: key,
+      count: value
+    })).sort((a, b) => b.count - a.count);
+  }
 }

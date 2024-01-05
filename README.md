@@ -16,7 +16,7 @@ This application reads the backed up divelog from the mobile phone app [DiveMate
 * The SQLite divelog database file is cached in the browser's IndexedDB.
 
 ## Dev Guide
-* run local: `npm run serve`
+* run local: `npm run start`
 * deploy to firebase
   * 1st, build: `npm run build`
   * 2dn, deploy: `firebase deploy`

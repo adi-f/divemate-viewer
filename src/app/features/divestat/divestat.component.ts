@@ -20,6 +20,10 @@ export class DivestatComponent {
     'description', 'count'
   ];
 
+  readonly columnsBuddyStats = [
+    'buddy', 'count'
+  ];
+
   logReady$: Observable<boolean>;
 
   diveSiteStats: Promise<DiveSiteStat[]> = Promise.resolve([]);
@@ -27,6 +31,8 @@ export class DivestatComponent {
   divesByCountry: Promise<DivesByCountry[]> = Promise.resolve([]);
   
   countStats: Promise<CountStat[]> = Promise.resolve([]);
+
+  buddyStats: Promise<CountStat[]> = Promise.resolve([]);
   
   constructor(private divestatService: DivestatService) {
     this.logReady$ = this.divestatService.logReady$;
@@ -42,6 +48,10 @@ export class DivestatComponent {
 
   calculateCountStats() {
     this.countStats = this.divestatService.readAllCountStats();
+  }
+
+  calculateBuddyStats() {
+    this.buddyStats = this.divestatService.readDivesByBuddy();
   }
 
 }

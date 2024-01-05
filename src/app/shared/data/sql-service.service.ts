@@ -2,7 +2,7 @@
 (window as any).require = () => ({});
 import { Injectable } from '@angular/core';
 import {Database, SqlJsStatic} from 'sql.js';
-import { Dive, DivesByCountry, DiveSiteStat } from '../model';
+import { Buddy, CountStat, Dive, DivesByCountry, DiveSiteStat } from '../model';
 import { CacheService } from 'src/app/shared/cache/cache.service';
 
 const SAFE_SQL_STRING_LITERAL = /^\w*$/;
@@ -92,6 +92,39 @@ export class SqlService {
     );
     return resultAsList[0];
   }
+
+  async readDivesByBuddyRawIds(): Promise<CountStat[]> {
+    return await this.read(
+      `select BuddyIDs, count(*) as count from Logbook where BuddyIDs is not null and BuddyIDs <> '' and Status <> ${DiveStatus.DELETED} group by BuddyIDs`,
+      column => ({
+        description: column[0],
+        count: column[1]
+      })
+    );
+  }
+
+  async readDivesByRawBuddyNames(): Promise<CountStat[]> {
+    return await this.read(
+      `select Buddy, count(*) as count from Logbook where Buddy is not null and Buddy <> '' and Status <> ${DiveStatus.DELETED} group by Buddy`,
+      column => ({
+        description: column[0],
+        count: column[1]
+      })
+    );
+  }
+
+  async readBuddies(ids: number[]): Promise<Buddy[]> {
+    const idString: string = ids.filter(id => typeof id === 'number').join(',')
+    return await this.read(
+      `select ID, FirstName, LastName from Buddy where ID in(${idString})`,
+      column => ({
+        id: column[0],
+        firstName: column[1],
+        lastName: column[2],
+      })
+    );
+  }
+  
 
   private async read<T>(sqlQuery: string, mapper: (row: any[]) => T): Promise<T[]> {
     await this.checkDb();
