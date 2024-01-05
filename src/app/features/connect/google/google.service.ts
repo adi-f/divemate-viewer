@@ -42,7 +42,7 @@ import { BehaviorSubject, Subject } from 'rxjs';
   }
 
 @Injectable({
-  providedIn: 'any'
+  providedIn: 'root'
 })
 export class GoogleService {
 
