@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {MatLegacyTableModule as MatTableModule} from '@angular/material/legacy-table';
+import { MatTableModule } from '@angular/material/table';
 import { HttpClientModule } from '@angular/common/http';
 import { DivelogComponent } from './divelog.component';
 import { MinutesToTimehPipe } from './minutesToTime.pipe';
