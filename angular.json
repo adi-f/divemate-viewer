@@ -74,10 +74,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "divemate-viewer:build:production"
+              "buildTarget": "divemate-viewer:build:production"
             },
             "development": {
-              "browserTarget": "divemate-viewer:build:development"
+              "buildTarget": "divemate-viewer:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -85,7 +85,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "divemate-viewer:build"
+            "buildTarget": "divemate-viewer:build"
           }
         },
         "test": {
@@ -109,5 +109,7 @@
       }
     }
   },
-  "defaultProject": "divemate-viewer"
+  "cli": {
+    "analytics": false
+  }
 }

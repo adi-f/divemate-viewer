@@ -5,7 +5,7 @@ import { ConfigService } from 'src/app/shared/config/config.service';
 import { GoogleService, LoginState } from '../google/google.service';
 
 @Injectable({
-  providedIn: 'any'
+  providedIn: 'root'
 })
 export class ConnectService {
 
