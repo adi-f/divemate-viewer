@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ConfigService } from 'src/app/shared/config/config.service';
-
-import { GoogleService, LoginState } from '../google/google.service';
+import { LoginState } from '../google/google.service';
 import { ConnectService } from './connect.service';
 
 const LOGIN_STATES_PRETTY = {
