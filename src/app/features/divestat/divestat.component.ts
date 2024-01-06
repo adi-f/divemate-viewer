@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CountStat, DivesByCountry, DiveSiteStat } from 'src/app/shared/model';
 import { DivestatService } from './divestat.service';
+import { AmvService } from './specific/amv-service';
 
 @Component({
   templateUrl: './divestat.component.html',
@@ -33,8 +34,10 @@ export class DivestatComponent {
   countStats: Promise<CountStat[]> = Promise.resolve([]);
 
   buddyStats: Promise<CountStat[]> = Promise.resolve([]);
+
+  amv$: Promise<string> = Promise.resolve('');
   
-  constructor(private divestatService: DivestatService) {
+  constructor(private divestatService: DivestatService, private amvService: AmvService) {
     this.logReady$ = this.divestatService.logReady$;
   }
 
@@ -52,6 +55,14 @@ export class DivestatComponent {
 
   calculateBuddyStats() {
     this.buddyStats = this.divestatService.readDivesByBuddy();
+  }
+
+  calculateAmv() {
+    this.amv$ = this.amvService.calcutateAvarageAmvOverAllDives().then( amv => roundTo2Digits(amv) + ' l/min')
+
+    function roundTo2Digits(num: number): number {
+      return Math.round(num*100)/100;
+    }
   }
 
 }

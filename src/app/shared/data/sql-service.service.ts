@@ -2,7 +2,7 @@
 (window as any).require = () => ({});
 import { Injectable } from '@angular/core';
 import {Database, SqlJsStatic} from 'sql.js';
-import { Buddy, CountStat, Dive, DivesByCountry, DiveSiteStat } from '../model';
+import { Buddy, CountStat, Dive, DivesByCountry, DiveSiteStat, Tank } from '../model';
 import { CacheService } from 'src/app/shared/cache/cache.service';
 
 const SAFE_SQL_STRING_LITERAL = /^\w*$/;
@@ -123,6 +123,7 @@ export class SqlService {
       })
     );
   }
+
   async readBuddies(ids: number[]): Promise<Buddy[]> {
     const idString: string = ids.filter(id => typeof id === 'number').join(',')
     return await this.read(
@@ -134,7 +135,36 @@ export class SqlService {
       })
     );
   }
-  
+
+  async readAllDivesWithProfileAndTanks(): Promise<number[]> {
+    return await this.read(
+      `select l.id from Logbook l
+         where l.Status <> ${DiveStatus.DELETED}
+         and l.ProfileInt is not null
+         and l.Profile is not null
+         and 0 < (select count(*) from Tank t where l.ID = t.LogID and PresS > PresE and Tanksize > 0)
+      `,
+      column => column[0]);
+  }
+
+  async readDiveProfile(logbookId: number): Promise<DiveProfile> {
+    return (await this.read(
+      `select ProfileInt, Profile from Logbook where ID = ${logbookId}`,
+      column => ({
+        intervalSeconds: column[0], 
+        rawProfile: column[1]
+      })))[0];
+  }
+
+  async readTanksOfDive(logbookId: number): Promise<Tank[]> {
+    return await this.read(
+      `select PresS, PresE, Tanksize from Tank where LogID = ${logbookId}`,
+      column => ({
+        pressureStartBar: column[0], 
+        pressureEndBar: column[1],
+        sizeLiter: column[2],
+      }));
+  }
 
   private async read<T>(sqlQuery: string, mapper: (row: any[]) => T): Promise<T[]> {
     await this.checkDb();
@@ -195,4 +225,9 @@ export class SqlService {
       return "'" + valueAsString + "'"  as unknown as T;
     }
   }
+}
+
+export interface DiveProfile {
+    rawProfile: string,
+    intervalSeconds: number
 }

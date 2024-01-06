@@ -28,3 +28,9 @@ export interface Buddy {
     firstName: string,
     lastName: string;
 }
+
+export interface Tank {
+    pressureStartBar: number,
+    pressureEndBar: number
+    sizeLiter: number
+}

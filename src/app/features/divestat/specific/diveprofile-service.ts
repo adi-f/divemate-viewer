@@ -3,7 +3,7 @@ import { Injectable } from "@angular/core";
 @Injectable({
     providedIn: 'root'
 })
-export class DivestatService {
+export class DiveprofileService {
  
     computeAverageDepth(rawProfile: string, intervalSeconds: number): {avgDepthMeters: number, diveTimeMinutes: number} {
         let depthSumMeters = 0;
