@@ -3,6 +3,7 @@ export interface Dive {
     date: string;
     location: string;
     durationMinutes: number;
+    depthMeters: number
 }
 
 export interface DiveSiteStat {

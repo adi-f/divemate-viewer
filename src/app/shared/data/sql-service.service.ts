@@ -47,12 +47,13 @@ export class SqlService {
 
   async readAllDives(): Promise<Dive[]> {
     return await this.read(
-      `select Number, Divedate, Place, Divetime from Logbook where Status <> ${DiveStatus.DELETED} order by Number desc`,
+      `select Number, Divedate, Place, Divetime, Depth from Logbook where Status <> ${DiveStatus.DELETED} order by Number desc`,
       column => ({
         number: column[0],
         date: column[1],
         location: column[2],
-        durationMinutes: column[3]
+        durationMinutes: column[3],
+        depthMeters: column[4]
       })
     );
   }
@@ -112,7 +113,16 @@ export class SqlService {
       })
     );
   }
-
+  
+  async readDivesByRawMasterNames(): Promise<CountStat[]> {
+    return await this.read(
+      `select Divemaster, count(*) as count from Logbook where Divemaster is not null and Divemaster <> '' and Status <> ${DiveStatus.DELETED} group by Divemaster`,
+      column => ({
+        description: column[0],
+        count: column[1]
+      })
+    );
+  }
   async readBuddies(ids: number[]): Promise<Buddy[]> {
     const idString: string = ids.filter(id => typeof id === 'number').join(',')
     return await this.read(

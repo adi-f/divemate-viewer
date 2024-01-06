@@ -5,6 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { DivelogComponent } from './divelog.component';
 import { MinutesToTimehPipe } from './minutesToTime.pipe';
 import { DivelogRoutingModule } from './divestat-routing.module';
+import { MatSortModule } from '@angular/material/sort';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,7 @@ import { DivelogRoutingModule } from './divestat-routing.module';
     CommonModule,
     HttpClientModule,
     DivelogRoutingModule,
-
+    MatSortModule,
     MatTableModule
   ]
 })

@@ -78,8 +78,12 @@ export class DivestatService {
     // direct entered buddy names
     const rawBuddyNameStat: CountStat[] = await this.sqlService.readDivesByRawBuddyNames();
     const buddyNameStat: CountStat[] = this.normalizeCompactedStats(rawBuddyNameStat);
+
+    // direct entered dive master names
+    const rawDiveMasterNameStat: CountStat[] = await this.sqlService.readDivesByRawMasterNames();
+    const buddyDiveMasterStat: CountStat[] = this.normalizeCompactedStats(rawDiveMasterNameStat);
     
-    return this.merge(buddyIdNameResolvedStat, buddyNameStat);
+    return this.merge(buddyIdNameResolvedStat, buddyNameStat, buddyDiveMasterStat);
   }
 
   private normalizeCompactedStats(compactedStat: CountStat[]): CountStat[] {
