@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { DiveProfile, SqlService } from "src/app/shared/data/sql-service.service";
-import { DiveprofileService } from "./diveprofile-service";
+import { AvaregeDeptCalculationMode, DiveprofileService } from "./diveprofile-service";
 import { Tank } from "src/app/shared/model";
 
 
@@ -12,14 +12,14 @@ export class AmvService {
 
     constructor(private sqlService: SqlService, private diveprofileService: DiveprofileService){}
 
-    async calcutateAvarageAmvOverAllDives(): Promise<number> {
+    async calcutateAvarageAmvOverAllDives(avaregeDeptCalculationMode: AvaregeDeptCalculationMode): Promise<number> {
         const idsOfDivesToCalculateAmv: number[] = await this.sqlService.readAllDivesWithProfileAndTanks();
         let sumOfConsumedGasLitersAtSurface = 0;
         let totalDiveTimeMinutes = 0;
 
         for(const id of idsOfDivesToCalculateAmv) {
             const [profile, tanks] = await Promise.all([this.sqlService.readDiveProfile(id), this.sqlService.readTanksOfDive(id)]);
-            const {avgDepthMeters, diveTimeMinutes} = this.diveprofileService.computeAverageDepth(profile.rawProfile, profile.intervalSeconds)
+            const {avgDepthMeters, diveTimeMinutes} = this.diveprofileService.computeAverageDepth(profile.rawProfile, profile.intervalSeconds, avaregeDeptCalculationMode)
             const avgAbsolutePressuerBar = avgDepthMeters / 10 + 1;
             const consumedGasLiters = this.computeConsumedGasLiters(tanks);
 

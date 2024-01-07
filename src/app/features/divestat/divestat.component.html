@@ -78,5 +78,15 @@
   <tr mat-row *matRowDef="let row; columns: columnsBuddyStats;"></tr>
 </table>
 
-<button mat-raised-button color="primary" [disabled]="(logReady$ | async) !== true" (click)="calculateAmv()">Calculate Respiratory Minute Volume</button> <span>{{amv$ | async}}</span>
-
+<div class="amv-fix-with">
+<button mat-raised-button color="primary" [disabled]="(logReady$ | async) !== true" (click)="calculateAmv()">Calculate Respiratory Minute Volume (AMV)</button>
+<mat-form-field>
+  <mat-label>Calculation Method</mat-label>
+  <select matNativeControl [(ngModel)]="amwCalculationMode">
+    <option [value]="AvaregeDeptCalculationMode.DONT_COUNT_SURFACE_TIME">don't count surface time</option>
+    <option [value]="AvaregeDeptCalculationMode.TRUNCATE_END_ONLY">truncate surface time at the end of the dive</option>
+    <option [value]="AvaregeDeptCalculationMode.FULL_RECORDED_DURATION">full recorded duration</option>
+  </select>
+</mat-form-field>
+<span *ngIf="amv$ | async as amv">{{amv | number:'1.2-2'}} l/min</span>
+</div>

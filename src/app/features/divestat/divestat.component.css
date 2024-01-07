@@ -7,3 +7,12 @@ table {
     margin-bottom: 0.5em;
 
 }
+
+.amv-fix-with {
+    width: 27em;
+}
+
+.amv-fix-with>* {
+    display: block;
+    width: 100%;
+}

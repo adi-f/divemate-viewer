@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { CountStat, DivesByCountry, DiveSiteStat } from 'src/app/shared/model';
 import { DivestatService } from './divestat.service';
 import { AmvService } from './specific/amv-service';
+import { AvaregeDeptCalculationMode } from './specific/diveprofile-service';
 
 @Component({
   templateUrl: './divestat.component.html',
@@ -25,6 +26,8 @@ export class DivestatComponent {
     'buddy', 'count'
   ];
 
+  readonly AvaregeDeptCalculationMode = AvaregeDeptCalculationMode;
+
   logReady$: Observable<boolean>;
 
   diveSiteStats: Promise<DiveSiteStat[]> = Promise.resolve([]);
@@ -35,7 +38,9 @@ export class DivestatComponent {
 
   buddyStats: Promise<CountStat[]> = Promise.resolve([]);
 
-  amv$: Promise<string> = Promise.resolve('');
+  amv$: Promise<number> = Promise.resolve(0);
+
+  amwCalculationMode: AvaregeDeptCalculationMode = AvaregeDeptCalculationMode.DONT_COUNT_SURFACE_TIME;
   
   constructor(private divestatService: DivestatService, private amvService: AmvService) {
     this.logReady$ = this.divestatService.logReady$;
@@ -58,11 +63,7 @@ export class DivestatComponent {
   }
 
   calculateAmv() {
-    this.amv$ = this.amvService.calcutateAvarageAmvOverAllDives().then( amv => roundTo2Digits(amv) + ' l/min')
-
-    function roundTo2Digits(num: number): number {
-      return Math.round(num*100)/100;
-    }
+    this.amv$ = this.amvService.calcutateAvarageAmvOverAllDives(this.amwCalculationMode as AvaregeDeptCalculationMode);
   }
 
 }
