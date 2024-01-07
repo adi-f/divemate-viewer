@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, lastValueFrom } from 'rxjs';
+import { map, reduce } from 'rxjs/operators';
 import { ConfigService } from 'src/app/shared/config/config.service';
-import { Decompression, Entry, Salinity, SqlService, StatColumns } from 'src/app/shared/data/sql-service.service';
-import { CountStat, DivesByCountry, DiveSiteStat } from 'src/app/shared/model';
+import { Decompression, DiveWithDecoProfile, Entry, Salinity, SqlService, StatColumns } from 'src/app/shared/data/sql-service.service';
+import { CountStat, DecoStat, Dive, DivesByCountry, DiveSiteStat, Records } from 'src/app/shared/model';
+import { DiveprofileService } from './specific/diveprofile-service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class DivestatService {
 
   logReady$: Observable<boolean>;
 
-  constructor(private sqlService: SqlService, private configService: ConfigService) {
+  constructor(private sqlService: SqlService, private configService: ConfigService, private diveprofileService: DiveprofileService) {
     this.logReady$ = configService.divelogCachedAt$.pipe(map(cacheDate => !!cacheDate))
   }
 
@@ -65,6 +66,75 @@ export class DivestatService {
 
   private readSaltwaterDiveCount(): Promise<number> {
     return this.sqlService.countBy(StatColumns.SALINITY, Salinity.SALT);
+  }
+
+  async readRecords(): Promise<Records> {
+    const diveprofileService = this.diveprofileService;
+
+    return await lastValueFrom(this.sqlService.readAllDivesForRecordsLayz().pipe(
+      map(toRecord),
+      reduce(pickBest)
+    ));
+
+    function toRecord(dive: DiveWithDecoProfile): Records {
+      const maxDeco: DecoStat | null = dive.isDeco && dive.profile4 && diveprofileService.getMaxDeco(dive.profile4) || null;
+      const thisDive: Dive = {
+        number: dive.number,
+        date: dive.date,
+        location: dive.location,
+        durationMinutes: dive.durationMinutes,
+        depthMeters: dive.depthMeters
+      }
+      return {
+        maxDecoDepthMeter: maxDeco?.maxDecoDepthMeter || 0,
+        maxDecoDepthDive: thisDive,
+        maxDecoWaitMinutesAtMaxDepth: maxDeco?.maxDecoWaitMinutesAtMaxDepth || 0,
+        maxDecoWaitDiveAtMaxDepth: thisDive,
+        maxTimeToSurfaceMinutes: maxDeco?.maxTimeToSurfaceMinutes || 0,
+        maxTimeToSurfaceDive: thisDive
+      }
+    }
+
+    function pickBest(a: Records, b: Records): Records {
+      let maxDecoDepthMeter: number;
+      let maxDecoDepthDive: Dive;
+      if(a.maxDecoDepthMeter < b.maxDecoDepthMeter) {
+        maxDecoDepthMeter = b.maxDecoDepthMeter;
+        maxDecoDepthDive = b.maxDecoDepthDive;
+      } else {
+        maxDecoDepthMeter = a.maxDecoDepthMeter;
+        maxDecoDepthDive = a.maxDecoDepthDive;
+      }
+
+      let maxDecoWaitMinutesAtMaxDepth: number;
+      let maxDecoWaitDiveAtMaxDepth: Dive;
+      if(a.maxDecoWaitMinutesAtMaxDepth < b.maxDecoWaitMinutesAtMaxDepth) {
+        maxDecoWaitMinutesAtMaxDepth = b.maxDecoWaitMinutesAtMaxDepth;
+        maxDecoWaitDiveAtMaxDepth = b.maxDecoWaitDiveAtMaxDepth;
+      } else {
+        maxDecoWaitMinutesAtMaxDepth = a.maxDecoWaitMinutesAtMaxDepth;
+        maxDecoWaitDiveAtMaxDepth = a.maxDecoWaitDiveAtMaxDepth;
+      }
+
+      let maxTimeToSurfaceMinutes: number;
+      let maxTimeToSurfaceDive: Dive;
+      if(a.maxTimeToSurfaceMinutes < b.maxTimeToSurfaceMinutes) {
+        maxTimeToSurfaceMinutes = b.maxTimeToSurfaceMinutes;
+        maxTimeToSurfaceDive = b.maxTimeToSurfaceDive;
+      } else {
+        maxTimeToSurfaceMinutes = a.maxTimeToSurfaceMinutes;
+        maxTimeToSurfaceDive = a.maxTimeToSurfaceDive;
+      }
+
+      return {
+        maxDecoDepthMeter,
+        maxDecoDepthDive,
+        maxDecoWaitMinutesAtMaxDepth,
+        maxDecoWaitDiveAtMaxDepth,
+        maxTimeToSurfaceMinutes,
+        maxTimeToSurfaceDive
+      }
+    }
   }
 
   async readDivesByBuddy() {

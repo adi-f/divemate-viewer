@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import {Database, SqlJsStatic} from 'sql.js';
 import { Buddy, CountStat, Dive, DivesByCountry, DiveSiteStat, Tank } from '../model';
 import { CacheService } from 'src/app/shared/cache/cache.service';
+import { Observable, map } from 'rxjs';
 
 const SAFE_SQL_STRING_LITERAL = /^\w*$/;
 
@@ -166,9 +167,35 @@ export class SqlService {
       }));
   }
 
+  readAllDivesForRecordsLayz(): Observable<DiveWithDecoProfile> {
+    return this.readLazy(`
+    select Number, Divedate, Place, Divetime, Depth, Deco, Profile4
+      from Logbook where Status <> ${DiveStatus.DELETED}
+      order by Number asc`)
+    .pipe(map( dive => ({
+      number: dive.Number as number,
+      date: dive.Divedate as string,
+      location: dive.Place as string,
+      durationMinutes: dive.Divetime as number,
+      depthMeters: dive.Depth as number,
+      isDeco: dive.Deco === Decompression.DECOMPRESSION,
+      profile4: dive.Profile4 as string || null
+    })))
+  }
+
   private async read<T>(sqlQuery: string, mapper: (row: any[]) => T): Promise<T[]> {
     await this.checkDb();
     return this.db.exec(sqlQuery)[0].values.map(row => mapper(row))
+  }
+
+  private readLazy<T>(sqlQuery: string): Observable<Record<string, number | string | Uint8Array | null>> {
+    return new Observable(subscriber => {
+      this.checkDb().then(() =>  this.db.each(
+          sqlQuery,
+          (result: Record<string, number | string | Uint8Array | null>) => subscriber.next(result),
+          () => subscriber.complete()
+          ));
+        });
   }
 
   private async checkDb(): Promise<void> {
@@ -230,4 +257,9 @@ export class SqlService {
 export interface DiveProfile {
     rawProfile: string,
     intervalSeconds: number
+}
+
+export interface DiveWithDecoProfile extends Dive {
+  isDeco: boolean;
+  profile4: string|null;
 }

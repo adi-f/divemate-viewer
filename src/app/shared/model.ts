@@ -34,3 +34,23 @@ export interface Tank {
     pressureEndBar: number
     sizeLiter: number
 }
+
+export interface DecoStat {
+    maxDecoDepthMeter: number,
+    maxDecoWaitMinutesAtMaxDepth: number
+    maxTimeToSurfaceMinutes: number
+}
+
+export interface Record extends Dive {
+    description: string
+    value: string
+}
+
+export interface Records {
+    maxDecoDepthMeter: number,
+    maxDecoDepthDive: Dive
+    maxDecoWaitMinutesAtMaxDepth: number
+    maxDecoWaitDiveAtMaxDepth: Dive
+    maxTimeToSurfaceMinutes: number
+    maxTimeToSurfaceDive: Dive
+}

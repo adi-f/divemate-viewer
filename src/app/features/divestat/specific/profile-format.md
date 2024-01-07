@@ -15,9 +15,9 @@ In der Spalte `Profil4`
   * Bei Deko geben sie die verbleibende Time to Surface an
 * Die darauf folgenden drei Ziffer gibt bei Nullzeit die verbleibende Nullzeit in Minuten an (max=99?)
   * Bei Deko geben sie die zu verbleibende Zeit auf der Stopp-Tiefe in Minuten an
-* Die letzten 2 Ziffern geben die Deko-Stopp Tiefe in Metern an
+* Die letzten 3 (oder 2?) Ziffern geben die Deko-Stopp Tiefe in Metern an
 * `019019000` bedeutet: Noch 19min Nullzeit
-* `015001012` bedeuat: TTS 15min, 10min Stopp auf 12m
+* `015001012` bedeuet: TTS 15min, 1min Stopp auf 12m
 
 
 Die Spalte `ProfileInt` ist der Intervall in Sekunden (10 = 10-Sekunden-Schritte)

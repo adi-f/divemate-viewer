@@ -1,11 +1,12 @@
 import { Injectable } from "@angular/core";
+import { DecoStat } from "src/app/shared/model";
 
 export enum AvaregeDeptCalculationMode {
     // Compute the full graph (including the end at the surface)
     FULL_RECORDED_DURATION='FULL_RECORDED_DURATION',
     // ignore time at the surface (also surface time in the middle of the dive)
     DONT_COUNT_SURFACE_TIME='DONT_COUNT_SURFACE_TIME',
-    // truncate surface time at the end
+    // truncate surface time at the end (method of Divemate)
     TRUNCATE_END_ONLY='TRUNCATE_END_ONLY'
 }
 
@@ -14,6 +15,31 @@ export enum AvaregeDeptCalculationMode {
 })
 export class DiveprofileService {
 
+    getMaxDeco(rawProfile4: string): DecoStat | null {
+        let maxDecoDepthMeter = 0;
+        let maxDecoWaitMinutesAtMaxDepth = 0;
+        let maxTimeToSurfaceMinutes = 0;
+
+        for(const iterator = new Profile4Iterator(rawProfile4); iterator.hasMore(); iterator.next()) {
+            const decoInfo = iterator.getDecoInfo();
+            if(decoInfo.isDeco) {
+                maxDecoDepthMeter = Math.max(maxDecoDepthMeter, decoInfo.decoDepthMeter);
+                maxDecoWaitMinutesAtMaxDepth = Math.max(maxDecoWaitMinutesAtMaxDepth, decoInfo.decoWaitMinutesAtMaxDepth);
+                maxTimeToSurfaceMinutes = Math.max(maxTimeToSurfaceMinutes, decoInfo.timeToSurfaceMinutes);
+            }
+        }
+
+        if(maxDecoDepthMeter > 0) {
+            return {
+                maxDecoDepthMeter,
+                maxDecoWaitMinutesAtMaxDepth,
+                maxTimeToSurfaceMinutes,
+            }
+        } else {
+            return null;
+        }
+    }
+    
     computeAverageDepth(rawProfile: string, intervalSeconds: number, avaregeDeptCalculationMode: AvaregeDeptCalculationMode): {avgDepthMeters: number, diveTimeMinutes: number} {
         switch(avaregeDeptCalculationMode) {
             case AvaregeDeptCalculationMode.FULL_RECORDED_DURATION:
@@ -99,4 +125,69 @@ class ProfileIterator {
         const decimeters = this.rawProfile.substring(this.position, this.position + 4);
         return parseInt(decimeters, 10) / 10;
     }
+}
+
+// see profile-format.md
+class Profile4Iterator {
+
+    private position: number = 0;
+
+    constructor(private rawProfile4: string) {}
+
+    next(): void {
+       this.position += 9;
+        
+    }
+
+    hasMore(): boolean {
+        return this.position < this.rawProfile4.length;
+    }
+
+    getDecoInfo(): ZerotimeValue|DecoValue {
+        const timeToSurfaceMinutes = this.getTimeToSurfaceMinutes();
+        const decoWaitMinutesAtMaxDepth = this.getDecoWaitMinutesAtMaxDepth();
+        const decoDepthMeter = this.getDecoDepthMeter();
+
+        if(decoDepthMeter === 0) {
+            return {
+                isDeco: false,
+                remainingZerotimeMinutes: decoWaitMinutesAtMaxDepth
+            };
+        } else {
+            return {
+                isDeco: true,
+                timeToSurfaceMinutes,
+                decoWaitMinutesAtMaxDepth,
+                decoDepthMeter
+            };
+        }
+    }
+
+    private getTimeToSurfaceMinutes(): number {
+        const minutes = this.rawProfile4.substring(this.position, this.position + 3);
+        return parseInt(minutes, 10);
+    }
+
+    private getDecoWaitMinutesAtMaxDepth(): number {
+        const minutes = this.rawProfile4.substring(this.position + 3, this.position + 6);
+        return parseInt(minutes, 10);
+    }
+
+    private getDecoDepthMeter(): number {
+        const minutes = this.rawProfile4.substring(this.position + 7, this.position + 9);
+        return parseInt(minutes, 10);
+    }
+
+}
+
+interface ZerotimeValue {
+    isDeco: false;
+    remainingZerotimeMinutes: number;
+}
+
+interface DecoValue {
+    isDeco: true;
+    timeToSurfaceMinutes: number;
+    decoWaitMinutesAtMaxDepth: number;
+    decoDepthMeter: number;
 }
