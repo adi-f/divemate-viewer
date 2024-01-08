@@ -37,7 +37,8 @@ export interface Tank {
 
 export interface DecoStat {
     maxDecoDepthMeter: number,
-    maxDecoWaitMinutesAtMaxDepth: number
+    maxDecoWaitMinutesAtDepth: number
+    maxDecoWaitAtDepthMeters: number
     maxTimeToSurfaceMinutes: number
 }
 
@@ -49,7 +50,8 @@ export interface Record extends Dive {
 export interface Records {
     maxDecoDepthMeter: number,
     maxDecoDepthDive: Dive
-    maxDecoWaitMinutesAtMaxDepth: number
+    maxDecoWaitMinutesAtDepth: number
+    maxDecoWaitAtDepthMeters: number
     maxDecoWaitDiveAtMaxDepth: Dive
     maxTimeToSurfaceMinutes: number
     maxTimeToSurfaceDive: Dive

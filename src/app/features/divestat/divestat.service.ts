@@ -88,7 +88,8 @@ export class DivestatService {
       return {
         maxDecoDepthMeter: maxDeco?.maxDecoDepthMeter || 0,
         maxDecoDepthDive: thisDive,
-        maxDecoWaitMinutesAtMaxDepth: maxDeco?.maxDecoWaitMinutesAtMaxDepth || 0,
+        maxDecoWaitMinutesAtDepth: maxDeco?.maxDecoWaitMinutesAtDepth || 0,
+        maxDecoWaitAtDepthMeters: maxDeco?.maxDecoWaitAtDepthMeters || 0,
         maxDecoWaitDiveAtMaxDepth: thisDive,
         maxTimeToSurfaceMinutes: maxDeco?.maxTimeToSurfaceMinutes || 0,
         maxTimeToSurfaceDive: thisDive
@@ -106,13 +107,16 @@ export class DivestatService {
         maxDecoDepthDive = a.maxDecoDepthDive;
       }
 
-      let maxDecoWaitMinutesAtMaxDepth: number;
+      let maxDecoWaitMinutesAtDepth: number;
+      let maxDecoWaitAtDepthMeters: number;
       let maxDecoWaitDiveAtMaxDepth: Dive;
-      if(a.maxDecoWaitMinutesAtMaxDepth < b.maxDecoWaitMinutesAtMaxDepth) {
-        maxDecoWaitMinutesAtMaxDepth = b.maxDecoWaitMinutesAtMaxDepth;
+      if(a.maxDecoWaitMinutesAtDepth < b.maxDecoWaitMinutesAtDepth) {
+        maxDecoWaitMinutesAtDepth = b.maxDecoWaitMinutesAtDepth;
+        maxDecoWaitAtDepthMeters = b.maxDecoWaitAtDepthMeters;
         maxDecoWaitDiveAtMaxDepth = b.maxDecoWaitDiveAtMaxDepth;
       } else {
-        maxDecoWaitMinutesAtMaxDepth = a.maxDecoWaitMinutesAtMaxDepth;
+        maxDecoWaitMinutesAtDepth = a.maxDecoWaitMinutesAtDepth;
+        maxDecoWaitAtDepthMeters = a.maxDecoWaitAtDepthMeters;
         maxDecoWaitDiveAtMaxDepth = a.maxDecoWaitDiveAtMaxDepth;
       }
 
@@ -129,7 +133,8 @@ export class DivestatService {
       return {
         maxDecoDepthMeter,
         maxDecoDepthDive,
-        maxDecoWaitMinutesAtMaxDepth,
+        maxDecoWaitMinutesAtDepth,
+        maxDecoWaitAtDepthMeters,
         maxDecoWaitDiveAtMaxDepth,
         maxTimeToSurfaceMinutes,
         maxTimeToSurfaceDive

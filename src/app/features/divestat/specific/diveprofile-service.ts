@@ -17,22 +17,28 @@ export class DiveprofileService {
 
     getMaxDeco(rawProfile4: string): DecoStat | null {
         let maxDecoDepthMeter = 0;
-        let maxDecoWaitMinutesAtMaxDepth = 0;
+        let maxDecoWaitMinutesAtDepth = 0;
+        let maxDecoWaitAtDepthMeters = 0;
         let maxTimeToSurfaceMinutes = 0;
 
         for(const iterator = new Profile4Iterator(rawProfile4); iterator.hasMore(); iterator.next()) {
             const decoInfo = iterator.getDecoInfo();
             if(decoInfo.isDeco) {
                 maxDecoDepthMeter = Math.max(maxDecoDepthMeter, decoInfo.decoDepthMeter);
-                maxDecoWaitMinutesAtMaxDepth = Math.max(maxDecoWaitMinutesAtMaxDepth, decoInfo.decoWaitMinutesAtMaxDepth);
                 maxTimeToSurfaceMinutes = Math.max(maxTimeToSurfaceMinutes, decoInfo.timeToSurfaceMinutes);
+
+                if(maxDecoWaitMinutesAtDepth < decoInfo.decoWaitMinutes) {
+                    maxDecoWaitMinutesAtDepth = decoInfo.decoWaitMinutes;
+                    maxDecoWaitAtDepthMeters = decoInfo.decoDepthMeter;
+                }
             }
         }
 
         if(maxDecoDepthMeter > 0) {
             return {
                 maxDecoDepthMeter,
-                maxDecoWaitMinutesAtMaxDepth,
+                maxDecoWaitMinutesAtDepth,
+                maxDecoWaitAtDepthMeters,
                 maxTimeToSurfaceMinutes,
             }
         } else {
@@ -145,19 +151,19 @@ class Profile4Iterator {
 
     getDecoInfo(): ZerotimeValue|DecoValue {
         const timeToSurfaceMinutes = this.getTimeToSurfaceMinutes();
-        const decoWaitMinutesAtMaxDepth = this.getDecoWaitMinutesAtMaxDepth();
+        const decoWaitMinutes = this.getDecoWaitMinutes();
         const decoDepthMeter = this.getDecoDepthMeter();
 
         if(decoDepthMeter === 0) {
             return {
                 isDeco: false,
-                remainingZerotimeMinutes: decoWaitMinutesAtMaxDepth
+                remainingZerotimeMinutes: decoWaitMinutes
             };
         } else {
             return {
                 isDeco: true,
                 timeToSurfaceMinutes,
-                decoWaitMinutesAtMaxDepth,
+                decoWaitMinutes,
                 decoDepthMeter
             };
         }
@@ -168,7 +174,7 @@ class Profile4Iterator {
         return parseInt(minutes, 10);
     }
 
-    private getDecoWaitMinutesAtMaxDepth(): number {
+    private getDecoWaitMinutes(): number {
         const minutes = this.rawProfile4.substring(this.position + 3, this.position + 6);
         return parseInt(minutes, 10);
     }
@@ -188,6 +194,6 @@ interface ZerotimeValue {
 interface DecoValue {
     isDeco: true;
     timeToSurfaceMinutes: number;
-    decoWaitMinutesAtMaxDepth: number;
+    decoWaitMinutes: number;
     decoDepthMeter: number;
 }

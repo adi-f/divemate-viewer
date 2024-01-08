@@ -84,10 +84,10 @@ export class DivestatComponent {
           });
         }
 
-        if(records.maxDecoWaitMinutesAtMaxDepth > 0) {
+        if(records.maxDecoWaitMinutesAtDepth > 0) {
           recordsList.push({
-            description: 'Deepest deco stop wait time',
-            value: records.maxDecoWaitMinutesAtMaxDepth + 'min',
+            description: 'Longest deco stop wait time at level',
+            value: records.maxDecoWaitMinutesAtDepth + 'min @ ' + records.maxDecoWaitAtDepthMeters + 'm',
             ...records.maxDecoWaitDiveAtMaxDepth
             
           });
