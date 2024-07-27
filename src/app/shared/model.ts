@@ -56,3 +56,14 @@ export interface Records {
     maxTimeToSurfaceMinutes: number
     maxTimeToSurfaceDive: Dive
 }
+
+export interface Equipment {
+    id: number;
+    name: string;
+  }
+
+  export interface EquipmentStat {
+    numberOfDives: number,
+    diveTimeHours: number,
+    diveTimeMinutes: number,
+  }

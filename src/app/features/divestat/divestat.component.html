@@ -78,19 +78,44 @@
   <tr mat-row *matRowDef="let row; columns: columnsBuddyStats;"></tr>
 </table>
 
-<div class="amv-fix-with">
-<button mat-raised-button color="primary" [disabled]="(logReady$ | async) !== true" (click)="calculateAmv()">Calculate Respiratory Minute Volume (AMV)</button>
-<mat-form-field>
-  <mat-label>Calculation Method</mat-label>
-  <select matNativeControl [(ngModel)]="amwCalculationMode">
-    <option [value]="AvaregeDeptCalculationMode.DONT_COUNT_SURFACE_TIME">don't count surface time</option>
-    <option [value]="AvaregeDeptCalculationMode.TRUNCATE_END_ONLY">truncate surface time at the end of the dive (like Divemate does)</option>
-    <option [value]="AvaregeDeptCalculationMode.FULL_RECORDED_DURATION">full recorded duration</option>
-  </select>
-</mat-form-field>
-<span *ngIf="amv$ | async as amv">{{amv | number:'1.2-2'}} l/min</span>
+<div class="button-with-dropdown-fix-with">
+  <button mat-raised-button color="primary" [disabled]="(logReady$ | async) !== true" (click)="calculateAmv()">Calculate Respiratory Minute Volume (AMV)</button>
+  <mat-form-field>
+    <mat-label>Calculation Method</mat-label>
+    <select matNativeControl [(ngModel)]="amwCalculationMode">
+      <option [value]="AvaregeDeptCalculationMode.DONT_COUNT_SURFACE_TIME">don't count surface time</option>
+      <option [value]="AvaregeDeptCalculationMode.TRUNCATE_END_ONLY">truncate surface time at the end of the dive (like Divemate does)</option>
+      <option [value]="AvaregeDeptCalculationMode.FULL_RECORDED_DURATION">full recorded duration</option>
+    </select>
+  </mat-form-field>
+  <span *ngIf="amv$ | async as amv">{{amv | number:'1.2-2'}} l/min</span>
 </div>
 
+<div class="button-with-dropdown-fix-with">
+<button mat-raised-button color="primary" [disabled]="equipmentId === null || (logReady$ | async) !== true" (click)="calculateEquipmentStat()">Calculate Equipment Statistics</button>
+<mat-form-field>
+  <mat-label>Equipment</mat-label>
+  <select matNativeControl [(ngModel)]="equipmentId">
+    <option *ngFor="let equ of equipment$ | async" [value]="equ.id">{{equ.name}}</option>
+  </select>
+</mat-form-field>
+</div>
+
+<table mat-table [dataSource]="(equipmentStat | async) || []" class="mat-elevation-z8">
+
+  <ng-container matColumnDef="numberOfDives">
+    <th mat-header-cell *matHeaderCellDef>Number of Dives</th>
+    <td mat-cell *matCellDef="let entry"> {{entry.numberOfDives}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="totalDiveTime">
+    <th mat-header-cell *matHeaderCellDef>Total Dive Time</th>
+    <td mat-cell *matCellDef="let entry"> {{entry.diveTimeHours}}h {{entry.diveTimeMinutes}}min</td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="columnsEquipmentStat"></tr>
+  <tr mat-row *matRowDef="let row; columns: columnsEquipmentStat;"></tr>
+</table>
 
 <button mat-raised-button color="primary" [disabled]="(logReady$ | async) !== true" (click)="calculateRecords()">Calculate Records</button>
 <table mat-table [dataSource]="(records | async) || []" class="mat-elevation-z8">

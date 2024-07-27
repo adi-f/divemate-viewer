@@ -8,11 +8,11 @@ table {
 
 }
 
-.amv-fix-with {
+.button-with-dropdown-fix-with {
     width: 27em;
 }
 
-.amv-fix-with>* {
+.button-with-dropdown-fix-with>* {
     display: block;
     width: 100%;
 }

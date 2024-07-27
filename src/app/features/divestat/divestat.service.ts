@@ -3,7 +3,7 @@ import { Observable, lastValueFrom } from 'rxjs';
 import { map, reduce } from 'rxjs/operators';
 import { ConfigService } from 'src/app/shared/config/config.service';
 import { Decompression, DiveWithDecoProfile, Entry, Salinity, SqlService, StatColumns } from 'src/app/shared/data/sql-service.service';
-import { CountStat, DecoStat, Dive, DivesByCountry, DiveSiteStat, Records } from 'src/app/shared/model';
+import { CountStat, DecoStat, Dive, DivesByCountry, DiveSiteStat, Equipment, EquipmentStat, Records } from 'src/app/shared/model';
 import { DiveprofileService } from './specific/diveprofile-service';
 
 @Injectable({
@@ -159,6 +159,24 @@ export class DivestatService {
     const buddyDiveMasterStat: CountStat[] = this.normalizeCompactedStats(rawDiveMasterNameStat);
     
     return this.merge(buddyIdNameResolvedStat, buddyNameStat, buddyDiveMasterStat);
+  }
+
+  async readAllEquipment(): Promise<Equipment[]> {
+    return this.sqlService.readAllEquipment();
+  }
+
+  async calculateEquipmentStat(equipmentId: number): Promise<EquipmentStat> {
+    const numberOfDives = await this.sqlService.readTotalDiveCountByEquipment(equipmentId);
+    const diveTimeInMinutes = await this.sqlService.readTotalDiveTimeMinutesByEquipment(equipmentId);
+
+    const hours = Math.floor(diveTimeInMinutes/60);
+    const minutes = Math.round(diveTimeInMinutes - hours*60);
+
+    return {
+      numberOfDives,
+      diveTimeHours: hours,
+      diveTimeMinutes: minutes
+    }
   }
 
   private normalizeCompactedStats(compactedStat: CountStat[]): CountStat[] {

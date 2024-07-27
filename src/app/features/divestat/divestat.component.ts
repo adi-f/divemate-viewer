@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { CountStat, DivesByCountry, DiveSiteStat, Record, Records } from 'src/app/shared/model';
+import { Observable, filter, switchMap, take } from 'rxjs';
+import { CountStat, DivesByCountry, DiveSiteStat, Equipment, EquipmentStat, Record, Records } from 'src/app/shared/model';
 import { DivestatService } from './divestat.service';
 import { AmvService } from './specific/amv-service';
 import { AvaregeDeptCalculationMode } from './specific/diveprofile-service';
@@ -30,6 +30,10 @@ export class DivestatComponent {
     'description', 'value', 'number', 'date', 'location'
   ];
 
+  readonly columnsEquipmentStat = [
+    'numberOfDives', 'totalDiveTime'
+  ];
+
   readonly AvaregeDeptCalculationMode = AvaregeDeptCalculationMode;
 
   logReady$: Observable<boolean>;
@@ -46,10 +50,21 @@ export class DivestatComponent {
 
   amwCalculationMode: AvaregeDeptCalculationMode = AvaregeDeptCalculationMode.DONT_COUNT_SURFACE_TIME;
 
+  equipment$: Observable<Equipment[]>;
+
+  equipmentId: number|null = null;
+
+  equipmentStat: Promise<EquipmentStat[]> = Promise.resolve([]);
+
   records: Promise<Record[]> = Promise.resolve([]);
   
   constructor(private divestatService: DivestatService, private amvService: AmvService) {
     this.logReady$ = this.divestatService.logReady$;
+    this.equipment$ = this.logReady$.pipe(
+      filter(status => status),
+      take(1),
+      switchMap(unused => this.divestatService.readAllEquipment())
+      )
   }
 
   calculateDiveSiteStats() {
@@ -70,6 +85,11 @@ export class DivestatComponent {
 
   calculateAmv() {
     this.amv$ = this.amvService.calcutateAvarageAmvOverAllDives(this.amwCalculationMode as AvaregeDeptCalculationMode);
+  }
+
+  calculateEquipmentStat() {
+    this.equipmentStat = this.divestatService.calculateEquipmentStat(this.equipmentId as number)
+      .then(equipmentStat => [equipmentStat]);
   }
 
   calculateRecords() {

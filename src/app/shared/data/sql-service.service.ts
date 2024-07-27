@@ -2,7 +2,7 @@
 (window as any).require = () => ({});
 import { Injectable } from '@angular/core';
 import {Database, SqlJsStatic} from 'sql.js';
-import { Buddy, CountStat, Dive, DivesByCountry, DiveSiteStat, Tank } from '../model';
+import { Buddy, CountStat, Dive, DivesByCountry, DiveSiteStat, Equipment, Tank } from '../model';
 import { CacheService } from 'src/app/shared/cache/cache.service';
 import { Observable, map } from 'rxjs';
 
@@ -34,6 +34,12 @@ export const enum Salinity {
   SALT = 1,
   FRESH = 2,
   BRACKISH = 3 // <- unproofed guess
+}
+
+export const enum EquipmentType {
+  EQUIPMENT = 0,
+  TANK = 11,
+  COMPUTER = 17
 }
 
 @Injectable({
@@ -181,6 +187,38 @@ export class SqlService {
       isDeco: dive.Deco === Decompression.DECOMPRESSION,
       profile4: dive.Profile4 as string || null
     })))
+  }
+
+  async readAllEquipment(): Promise<Equipment[]> {
+    return await this.read(`
+    select ID, Object
+      from Equipment
+      where TypeID=${EquipmentType.EQUIPMENT}
+      order by Object`,
+    column => ({
+      id: column[0], 
+      name: column[1]
+    }));
+  }
+
+  async readTotalDiveCountByEquipment(equipmentId: number): Promise<number> {
+    // TODO: warn: works only with max one assigned equipment (maybe UsedEquip is a list)
+    return (await this.read(`
+    select count (*)
+      from Logbook
+      where UsedEquip = ${equipmentId}
+      and Status <> 2`,
+    column => column[0]))[0];
+  }
+
+  async readTotalDiveTimeMinutesByEquipment(equipmentId: number): Promise<number> {
+    // TODO: warn: works only with max one assigned equipment (maybe UsedEquip is a list)
+    return (await this.read(`
+    select sum (Divetime)
+      from Logbook
+      where UsedEquip = ${equipmentId}
+      and Status <> 2`,
+    column => column[0]))[0];
   }
 
   private async read<T>(sqlQuery: string, mapper: (row: any[]) => T): Promise<T[]> {
