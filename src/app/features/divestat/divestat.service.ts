@@ -3,7 +3,7 @@ import { Observable, lastValueFrom } from 'rxjs';
 import { map, reduce } from 'rxjs/operators';
 import { ConfigService } from 'src/app/shared/config/config.service';
 import { Decompression, DiveWithDecoProfile, Entry, Salinity, SqlService, StatColumns } from 'src/app/shared/data/sql-service.service';
-import { CountStat, DecoStat, Dive, DivesByCountry, DiveSiteStat, Equipment, EquipmentStat, Histogram, HistogramMonthStat, HistogramYearStat, Records } from 'src/app/shared/model';
+import { CountStat, DecoStat, DepthStatistics, Dive, DivesByCountry, DiveSiteStat, Equipment, EquipmentStat, Histogram, HistogramMonthStat, HistogramYearStat, Records } from 'src/app/shared/model';
 import { DiveprofileService } from './specific/diveprofile-service';
 
 @Injectable({
@@ -295,6 +295,18 @@ export class DivestatService {
       }
     }
     
+  }
+
+  async countDepthStatistics(toleranceMeter: number): Promise<DepthStatistics>  {
+    const results = [60, 50, 40, 30, 20, 10].map( async depthMeter => {
+      const count = await this.sqlService.countDivesDeeperOrEqualThan(depthMeter + toleranceMeter);
+      return {depthMeter, count};
+    });
+
+    const depthStatistics: DepthStatistics = await Promise.all(results);
+    const deepestDive: Dive = (await this.sqlService.findDeepestDive())[0];
+    depthStatistics.deepestDive = deepestDive;
+    return depthStatistics;
   }
 
   private normalizeCompactedStats(compactedStat: CountStat[]): CountStat[] {

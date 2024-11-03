@@ -84,3 +84,5 @@ export interface HistogramMonthStat {
     isMaxOfYear: boolean;
     isMaxOfAll: boolean;
 }
+
+export type DepthStatistics = {depthMeter: number, count: number}[] & {deepestDive?: Dive}

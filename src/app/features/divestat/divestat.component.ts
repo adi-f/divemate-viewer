@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Observable, filter, switchMap, take } from 'rxjs';
-import { CountStat, DivesByCountry, DiveSiteStat, Equipment, EquipmentStat, Histogram, HistogramMonthStat, HistogramYearStat, Record, Records } from 'src/app/shared/model';
+import { CountStat, DepthStatistics, DivesByCountry, DiveSiteStat, Equipment, EquipmentStat, Histogram, HistogramMonthStat, HistogramYearStat, Record, Records } from 'src/app/shared/model';
 import { DivestatService } from './divestat.service';
 import { AmvService } from './specific/amv-service';
 import { AvaregeDeptCalculationMode } from './specific/diveprofile-service';
@@ -36,6 +36,10 @@ export class DivestatComponent {
     'numberOfDives', 'totalDiveTime'
   ];
 
+  readonly columnsDepthStats = [
+    'depth', 'count'
+  ];
+
   readonly AvaregeDeptCalculationMode = AvaregeDeptCalculationMode;
 
   logReady$: Observable<boolean>;
@@ -66,6 +70,9 @@ export class DivestatComponent {
   histogramTrackBy = (index: number, entry: TreeEntry) => entry.id;
   histogramMaxPerYear: number = -1;
   histogramMaxPerMonth: number = -1;
+
+  depthStats: Promise<DepthStatistics> = Promise.resolve([]);
+  depthStatsToleranceMeter: number = -0.15
 
   
   constructor(private divestatService: DivestatService, private amvService: AmvService) {
@@ -174,6 +181,10 @@ export class DivestatComponent {
     )
     const dataSource = new MatTreeFlatDataSource<Histogram, TreeEntry, TreeEntry>(treeControl, treeFlattener);
     return {histogram: dataSource, histogramTreeControl: treeControl};
+  }
+
+  calculateDepthStats() {
+    this.depthStats = this.divestatService.countDepthStatistics(this.depthStatsToleranceMeter);
   }
 }
 

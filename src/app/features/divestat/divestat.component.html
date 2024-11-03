@@ -174,4 +174,31 @@
     </button>
     {{node.name}}
   </mat-tree-node>
-</mat-tree>                                        
+</mat-tree>
+
+<button mat-raised-button color="primary" [disabled]="(logReady$ | async) !== true" (click)="calculateDepthStats()">Calculate Depth Statistics</button>
+<br>
+<mat-form-field>
+  <mat-label>Tolerance (m)</mat-label>
+  <input matInput [(ngModel)]="depthStatsToleranceMeter">
+</mat-form-field>
+<table mat-table [dataSource]="(depthStats | async) || []" class="mat-elevation-z8">
+
+  <ng-container matColumnDef="depth">
+    <th mat-header-cell *matHeaderCellDef>Depth</th>
+    <td mat-cell *matCellDef="let entry"> {{entry.depthMeter}}m </td>
+    <td mat-footer-cell *matFooterCellDef>Deepest Dive</td>
+  </ng-container>
+
+  <ng-container matColumnDef="count">
+    <th mat-header-cell *matHeaderCellDef>Count</th>
+    <td mat-cell *matCellDef="let entry"> {{entry.count}} </td>
+    <td mat-footer-cell *matFooterCellDef><ng-container *ngIf="(depthStats | async)?.deepestDive as deepestDive">
+      #{{deepestDive.number}} // {{deepestDive.location}} on {{deepestDive.date | date}} // depth: {{deepestDive.depthMeters}}m
+    </ng-container></td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="columnsDepthStats"></tr>
+  <tr mat-row *matRowDef="let row; columns: columnsDepthStats;"></tr>
+  <tr mat-footer-row *matFooterRowDef="columnsDepthStats"></tr>
+</table>

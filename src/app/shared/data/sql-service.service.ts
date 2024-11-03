@@ -217,8 +217,35 @@ export class SqlService {
     select sum (Divetime)
       from Logbook
       where UsedEquip = ${equipmentId}
-      and Status <> 2`,
+      and Status <> ${DiveStatus.DELETED}`,
     column => column[0]))[0];
+  }
+
+  async countDivesDeeperOrEqualThan(depthMeter: number): Promise<number> {
+    return (await this.read(`
+    select count (*)
+      from Logbook
+      where Depth >= ${depthMeter}
+      and Status <> ${DiveStatus.DELETED}`,
+    column => column[0]))[0];
+  }
+
+  async findDeepestDive(): Promise<Dive[]> {
+    // Note: May resurns more than one dive if there are many deepest dives. Order: 1st deepest dive is first
+    return await this.read(
+      `select Number, Divedate, Place, Divetime, Depth 
+        from Logbook
+        where Status <> ${DiveStatus.DELETED}
+        and Depth = (select max(Depth) from Logbook where Status <> ${DiveStatus.DELETED})
+        order by Number asc`,
+      column => ({
+        number: column[0],
+        date: column[1],
+        location: column[2],
+        durationMinutes: column[3],
+        depthMeters: column[4]
+      })
+    );
   }
 
   private async read<T>(sqlQuery: string, mapper: (row: any[]) => T): Promise<T[]> {
