@@ -62,8 +62,25 @@ export interface Equipment {
     name: string;
   }
 
-  export interface EquipmentStat {
+export interface EquipmentStat {
     numberOfDives: number,
     diveTimeHours: number,
     diveTimeMinutes: number,
   }
+
+export type Histogram = HistogramYearStat[] & {maxPerYear?: number, maxPerMonth?: number}
+
+export interface HistogramYearStat {
+    year: number;
+    count: number;
+    isMax: boolean;
+    months: HistogramMonthStat[];
+}
+
+export interface HistogramMonthStat {
+    month: number;
+    monthName: string;
+    count: number;
+    isMaxOfYear: boolean;
+    isMaxOfAll: boolean;
+}

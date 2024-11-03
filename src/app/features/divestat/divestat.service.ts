@@ -3,7 +3,7 @@ import { Observable, lastValueFrom } from 'rxjs';
 import { map, reduce } from 'rxjs/operators';
 import { ConfigService } from 'src/app/shared/config/config.service';
 import { Decompression, DiveWithDecoProfile, Entry, Salinity, SqlService, StatColumns } from 'src/app/shared/data/sql-service.service';
-import { CountStat, DecoStat, Dive, DivesByCountry, DiveSiteStat, Equipment, EquipmentStat, Records } from 'src/app/shared/model';
+import { CountStat, DecoStat, Dive, DivesByCountry, DiveSiteStat, Equipment, EquipmentStat, Histogram, HistogramMonthStat, HistogramYearStat, Records } from 'src/app/shared/model';
 import { DiveprofileService } from './specific/diveprofile-service';
 
 @Injectable({
@@ -177,6 +177,124 @@ export class DivestatService {
       diveTimeHours: hours,
       diveTimeMinutes: minutes
     }
+  }
+
+  async calculateHistogram(): Promise<Histogram> {
+    const allDives: Dive[] = await this.sqlService.readAllDives();
+    const histogramYear = new Map<number, number>() // Map<year, count>
+    const histogramMonth = new Map<number, number>() // Map<year+month yyyymm, count>
+
+    const histogramYearWithMonth = new Map<number, HistogramYearStat>() // Map<year, HistogramYearStat>
+    const result: Histogram = [];
+
+    computeHistograms();
+    buildHistogramYearWithMonth();
+    setIsMaxFlags();
+    sortAndBuildResult();
+
+    return result
+
+    function computeHistograms() {
+      for(const dive of allDives) {
+        const date = new Date(dive.date);
+        const year: number = date.getFullYear();
+        const yearMonth: number = year * 100 + date.getMonth() + 1; // yyyymm
+        
+        const yearCount: number = histogramYear.get(year) || 0;
+        histogramYear.set(year, yearCount+1);
+  
+        const monthCount: number = histogramMonth.get(yearMonth) || 0;
+        histogramMonth.set(yearMonth, monthCount+1);
+      }
+    }
+
+    function buildHistogramYearWithMonth() {
+      histogramMonth.forEach((count, yearMonth) => {
+        const year = Math.floor(yearMonth / 100);
+        const month = yearMonth % 100;
+        let yearEntry: HistogramYearStat | undefined = histogramYearWithMonth.get(year);
+        if(!yearEntry) {
+          yearEntry = newEmptyYear(year);
+          histogramYearWithMonth.set(year, yearEntry);
+        }
+        yearEntry.count += count;
+        yearEntry.months.push(newMonth(month, count))
+      })
+    }
+
+    function setIsMaxFlags() {
+      let maxPerYear = 0;
+      let maxPerMonthOfAll = 0;
+
+      // find
+      histogramYearWithMonth.forEach(entryYear => {
+        if(entryYear.count > maxPerYear) {
+          maxPerYear = entryYear.count;
+        }
+        let maxPerMonthOfYear = 0;
+        for(const monthEntry of entryYear.months) {
+          if(monthEntry.count > maxPerMonthOfAll) {
+            maxPerMonthOfAll = monthEntry.count;
+          }
+          if(monthEntry.count > maxPerMonthOfYear) {
+            maxPerMonthOfYear = monthEntry.count;
+          }
+        }
+
+        // set isMaxOfYear of month
+        for(const monthEntry of entryYear.months) {
+          if(monthEntry.count === maxPerMonthOfYear) {
+            monthEntry.isMaxOfYear = true;
+          }
+        }
+      });
+
+      // set
+      histogramYearWithMonth.forEach(entryYear => {
+        if(entryYear.count === maxPerYear) {
+          entryYear.isMax = true;
+        }
+        for(const monthEntry of entryYear.months) {
+          if(monthEntry.count === maxPerMonthOfAll) {
+            monthEntry.isMaxOfAll = true;
+          }
+        }
+      });
+
+      result.maxPerYear = maxPerYear;
+      result.maxPerMonth = maxPerMonthOfAll;
+    }
+
+    function sortAndBuildResult() {
+      histogramYearWithMonth.forEach(entryYear => result.push(entryYear));
+      result.sort((a, b) => b.year - a.year);
+      result.forEach(entryYear => entryYear.months.sort((a, b) => b.month - a.month))
+    }
+
+    function newEmptyYear(year: number): HistogramYearStat {
+      return {
+        year,
+        count: 0,
+        isMax: false,
+        months: []
+      };
+    }
+
+    function newMonth(month: number, count: number): HistogramMonthStat {
+      const monthName: string = [
+        /* zero */,  'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August',  'September', 'October', 'November', 'December'
+      ][month]!;
+
+      return {
+        month,
+        monthName: monthName,
+        count,
+        isMaxOfYear: false,
+        isMaxOfAll: false
+      }
+    }
+    
   }
 
   private normalizeCompactedStats(compactedStat: CountStat[]): CountStat[] {
