@@ -218,7 +218,7 @@ export class DivestatService {
           histogramYearWithMonth.set(year, yearEntry);
         }
         yearEntry.count += count;
-        yearEntry.months.push(newMonth(month, count))
+        yearEntry.months.push(newMonth(yearMonth, month, count))
       })
     }
 
@@ -241,7 +241,7 @@ export class DivestatService {
           }
         }
 
-        // set isMaxOfYear of month
+        // set maxPerMonthOfYear
         for(const monthEntry of entryYear.months) {
           if(monthEntry.count === maxPerMonthOfYear) {
             monthEntry.isMaxOfYear = true;
@@ -268,7 +268,7 @@ export class DivestatService {
     function sortAndBuildResult() {
       histogramYearWithMonth.forEach(entryYear => result.push(entryYear));
       result.sort((a, b) => b.year - a.year);
-      result.forEach(entryYear => entryYear.months.sort((a, b) => b.month - a.month))
+      result.forEach(entryYear => entryYear.months.sort((a, b) => b.yearMonth - a.yearMonth))
     }
 
     function newEmptyYear(year: number): HistogramYearStat {
@@ -280,14 +280,14 @@ export class DivestatService {
       };
     }
 
-    function newMonth(month: number, count: number): HistogramMonthStat {
+    function newMonth(yearMonth: number, month: number, count: number): HistogramMonthStat {
       const monthName: string = [
         /* zero */,  'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August',  'September', 'October', 'November', 'December'
       ][month]!;
 
       return {
-        month,
+        yearMonth,
         monthName: monthName,
         count,
         isMaxOfYear: false,

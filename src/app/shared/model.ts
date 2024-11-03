@@ -78,7 +78,7 @@ export interface HistogramYearStat {
 }
 
 export interface HistogramMonthStat {
-    month: number;
+    yearMonth: number;
     monthName: string;
     count: number;
     isMaxOfYear: boolean;

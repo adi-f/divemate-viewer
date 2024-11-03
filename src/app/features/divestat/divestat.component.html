@@ -150,6 +150,14 @@
 </table>
 
 <button mat-raised-button color="primary" [disabled]="(logReady$ | async) !== true" (click)="calculateHistogram()">Calculate Histogram per year and month</button>
+
+<div *ngIf="histogramMaxPerYear > 0">
+<ul>
+  <li>Max dives per year: {{histogramMaxPerYear}}</li>
+  <li>Max dives per month: {{histogramMaxPerMonth}}</li>
+</ul>
+</div>
+
 <mat-tree [dataSource]="histogram" [treeControl]="histogramTreeControl" [trackBy]="histogramTrackBy">
   <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
     <!-- use a disabled button to provide padding for tree leaf -->

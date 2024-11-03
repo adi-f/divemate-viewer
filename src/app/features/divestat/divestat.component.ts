@@ -64,6 +64,8 @@ export class DivestatComponent {
   histogramTreeControl: FlatTreeControl<TreeEntry> = null as any;
   histogramIsExpandable = (index: number, entry: TreeEntry) => entry.expandable
   histogramTrackBy = (index: number, entry: TreeEntry) => entry.id;
+  histogramMaxPerYear: number = -1;
+  histogramMaxPerMonth: number = -1;
 
   
   constructor(private divestatService: DivestatService, private amvService: AmvService) {
@@ -138,14 +140,18 @@ export class DivestatComponent {
   }
 
   calculateHistogram() {
-    this.divestatService.calculateHistogram().then((histogram: Histogram) => 
-      this.histogram.data = histogram as any);
+    this.divestatService.calculateHistogram().then((histogram: Histogram) => {
+      this.histogram.data = histogram as any;
+      this.histogramMaxPerYear = histogram.maxPerYear as number;
+      this.histogramMaxPerMonth = histogram.maxPerMonth as number;
+    });
+      
   }
 
   private createHistogramDataSource(): {histogram: MatTreeFlatDataSource<Histogram, TreeEntry, TreeEntry>,histogramTreeControl: FlatTreeControl<TreeEntry> } {
     function transformer(entry: any, level: number): TreeEntry {
       return {
-        id: entry.month ?? entry.year,
+        id: entry.yearMonth ?? entry.year,
         expandable: entry?.months?.length > 0,
         name: (entry.monthName ?? (entry.year + ''))
          + ` (${entry.count})`
